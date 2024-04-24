@@ -222,7 +222,7 @@ Dump_AppendOnlyStorage_ContentInfo(uint8 *headerPtr,
 								   AppendOnlyStorageReadCurrent *blkHdr)
 {
 	DatumStreamBlock_Orig *contentPtr;
-	Bytef	   *uncompressedDatum = NULL;
+	uint8 	   *uncompressedDatum = NULL;
 	bool		success = true;
 
 	printf("\n\t<AO Content Info> -----");
