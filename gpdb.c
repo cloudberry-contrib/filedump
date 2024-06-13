@@ -15,12 +15,9 @@
 #include "gpdb.h"
 
 #include "cdb/cdbappendonlystorageformat.h"
-#include "cdb/cdbappendonlystorageformat_impl.h"
 #include "utils/datumstreamblock.h"
 
-#if GP_VERSION_NUM >= 60000
 #include "access/gin_private.h"
-#endif /* GP_VERSION_NUM */
 
 #ifdef ENABLE_ZLIB
 #include <zlib.h>
@@ -32,12 +29,9 @@
 #endif /* ENABLE_ZSTD */
 
 #ifdef ENABLE_QUICKLZ
-#if GP_VERSION_NUM >= 60000
 #include "quicklz.h"
-#else /* GP_VERSION_NUM */
 #include "quicklz1.h"
 #include "quicklz3.h"
-#endif /* GP_VERSION_NUM */
 #endif /* ENABLE_QUICKLZ */
 
 /*

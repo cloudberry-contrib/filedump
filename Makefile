@@ -1,13 +1,11 @@
 # only support building in pgxs mode
 USE_PGXS = 1
-
-GPDB_REPO ?= https://raw.githubusercontent.com/greenplum-db/gpdb
-top_builddir ?= $(HOME)/src/gpdb-$(GPDB_RELEASE).git
+MODULE_big = pg_filedump
 
 # the pgxs makefiles provide some version variables like below:
 #
-#     MAJORVERSION = 12
-#     GP_MAJORVERSION = 7
+#     MAJORVERSION = 14
+#     GP_MAJORVERSION = 4
 #
 # however we need them before including the makefiles, so we have to guess them
 # manually with pg_config
@@ -20,20 +18,27 @@ ifeq ($(PG_CONFIG_MAJOR_VERSION),)
 $(error cannot detect gpdb version with pg_config)
 endif # PG_CONFIG_MAJOR_VERSION
 
-ifeq ($(PG_CONFIG_MAJOR_VERSION),12.12)
-	# gpdb-7, postgres-12 based
+# cbdb-1.5.x, postgres-14 based
+ifeq ($(PG_CONFIG_MAJOR_VERSION),14.4)	
 	GPDB_RELEASE = 7
-	GPDB_COMMIT = 0a7a3566873325aca1789ae6f818c80f17a9402d
 	# pg_control has incompatible formats between gpdb major versions
 	REGRESS += gpdb-7_12.12-control
 endif # PG_CONFIG_MAJOR_VERSION
 
-ifeq ($(GPDB_COMMIT),)
-$(error unsupported gpdb version: $(shell pg_config --version))
-endif # GPDB_COMMIT
+ifeq ($(GPDB_RELEASE),)
+$(error unsupported cbdb/pg version: $(shell pg_config --version))
+endif # GPDB_RELEASE
+
+PG_INCLUDEDIR = $(shell pg_config --includedir)
+PG_SERVER_INCLUDEDIR = ${PG_INCLUDEDIR}/postgresql/server
+
+PG_LIBS += -lpostgres
+PG_CFLAGS += -I$(PG_INCLUDEDIR) -I$(PG_SERVER_INCLUDEDIR)
+PG_LDFLAGS += -I $(shell pg_config --ldflags)
 
 PROGRAM = pg_filedump
-OBJS	= decode.o pg_filedump.o stringinfo.o
+PROGNAME = pg_filedump
+OBJS	= decode.c pg_filedump.c stringinfo.c
 
 DOCS = README.pg
 DOCS += README.md
@@ -73,8 +78,8 @@ endif # ENABLE_ZSTD
 $(info ENABLE_ZLIB: $(ENABLE_ZLIB))
 $(info ENABLE_ZSTD: $(ENABLE_ZSTD))
 
-OBJS += gpdb.o
-OBJS += mock.o
+OBJS += gpdb.c
+OBJS += mock.c
 
 REGRESS += gpdb-$(GPDB_RELEASE)-common
 
@@ -86,19 +91,13 @@ ifeq ($(ENABLE_ZSTD),y)
 	REGRESS += gpdb-$(GPDB_RELEASE)-zstd
 endif # ENABLE_ZSTD
 
-ifdef USE_PGXS
-	PG_CONFIG = pg_config
-	PGXS := $(shell $(PG_CONFIG) --pgxs)
-	include $(PGXS)
-endif
-
 # avoid linking against all libs that the server links against (xml, selinux, ...)
 LIBS = $(libpq_pgport)
 
 # add init_file
 REGRESS_OPTS = --init-file=$(srcdir)/init_file
 
-# always redownload all the files
-.PHONY: download
-download:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST))
+PG_CONFIG = pg_config
+PGXS := $(shell $(PG_CONFIG) --pgxs)
+include $(PGXS)
+PGXS_DIR := $(dir $(PGXS))
