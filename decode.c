@@ -9,22 +9,15 @@
  *-------------------------------------------------------------------------
  */
 #include "postgres.h"
+#include "access/detoast.h"
+#include "access/heaptoast.h"
 #include "decode.h"
 #include "pg_filedump.h"
 #include <lib/stringinfo.h>
-#if GP_VERSION_NUM >= 60000
 #include <access/htup_details.h>
-#endif /* GP_VERSION_NUM */
 #include <access/tupmacs.h>
-#include <access/tuptoaster.h>
-#if GP_VERSION_NUM >= 60000
 #include <datatype/timestamp.h>
-#else /* GP_VERSION_NUM */
-#include <utils/datetime.h>
-#endif /* GP_VERSION_NUM */
-#if GP_VERSION_NUM >= 70000
 #include <common/pg_lzcompress.h>
-#endif /* GP_VERSION_NUM */
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -212,16 +205,10 @@ static bool copyStringInitDone = false;
  * this limit. Unfortunately there is no way to know how much memory user
  * is willing to allocate.
  */
-#if GP_VERSION_NUM >= 70000
 static char decompress_tmp_buff[64 * 1024];
-#endif /* GP_VERSION_NUM */
 
 /* Used by some PostgreSQL macro definitions */
-#if GP_VERSION_NUM >= 60000
 void
-#else /* GP_VERSION_NUM */
-int
-#endif /* GP_VERSION_NUM */
 ExceptionalCondition(const char *conditionName,
 					 const char *errorType,
 					 const char *fileName,
@@ -458,11 +445,7 @@ ParseAttributeTypesString(const char *str)
  * Convert Julian day number (JDN) to a date.
  * Copy-pasted from src/backend/utils/adt/datetime.c
  */
-#if GP_VERSION_NUM >= 60000
-static void
-#else /* GP_VERSION_NUM */
 void
-#endif /* GP_VERSION_NUM */
 j2date(int jd, int *year, int *month, int *day)
 {
 	unsigned int julian;
@@ -905,13 +888,12 @@ decode_string(const char *buffer, unsigned int buff_size, unsigned int *out_size
 
 	if (VARATT_IS_4B_C(buffer) && buff_size >= 8)
 	{
-#if GP_VERSION_NUM >= 70000
 		/*
 		 * xxxxxx10 4-byte length word, aligned, *compressed* data (up to 1G)
 		 */
 		int			decompress_ret;
 		uint32		len = VARSIZE_4B(buffer);
-		uint32		decompressed_len = VARRAWSIZE_4B_C(buffer);
+		uint32		decompressed_len = VARSIZE_ANY(buffer);
 
 		if (len > buff_size)
 			return -1;
@@ -929,9 +911,7 @@ decode_string(const char *buffer, unsigned int buff_size, unsigned int *out_size
 
 		decompress_ret = pglz_decompress(VARDATA_4B_C(buffer), len - 2 * sizeof(uint32),
 										 decompress_tmp_buff, decompressed_len
-#if PG_VERSION_NUM >= 120000
 										 , true
-#endif
 										 );
 		if ((decompress_ret != decompressed_len) || (decompress_ret < 0))
 		{
@@ -944,7 +924,6 @@ decode_string(const char *buffer, unsigned int buff_size, unsigned int *out_size
 		CopyAppendEncode(decompress_tmp_buff, decompressed_len);
 		*out_size = padding + len;
 		return 0;
-#endif /* GP_VERSION_NUM */
 	}
 
 	return -9;
@@ -1007,19 +986,15 @@ FormatDecode(const char *tupleData, unsigned int tupleSize)
 	CopyFlush();
 }
 
-#if GP_VERSION_NUM >= 60000
 static int DumpCompressedString(const char *data, int32 decompressed_size)
 {
-#if GP_VERSION_NUM >= 70000
 	int		decompress_ret;
 	char   *decompress_tmp_buff = malloc(TOAST_COMPRESS_RAWSIZE(data));
 
 	decompress_ret = pglz_decompress(TOAST_COMPRESS_RAWDATA(data),
 			decompressed_size - TOAST_COMPRESS_HEADER_SIZE,
 			decompress_tmp_buff, TOAST_COMPRESS_RAWSIZE(data)
-#if PG_VERSION_NUM >= 120000
 			, true
-#endif
 			);
 	if ((decompress_ret != TOAST_COMPRESS_RAWSIZE(data)) ||
 			(decompress_ret < 0))
@@ -1036,12 +1011,7 @@ static int DumpCompressedString(const char *data, int32 decompressed_size)
 	free(decompress_tmp_buff);
 
 	return decompress_ret;
-#else /* GP_VERSION_NUM */
-	/* FIXME: GPDB: how to decompress in gpdb 6? */
-	return 0;
-#endif /* GP_VERSION_NUM */
 }
-#endif /* GP_VERSION_NUM */
 
 static int
 ReadStringFromToast(const char *buffer,
@@ -1050,7 +1020,6 @@ ReadStringFromToast(const char *buffer,
 {
 	int		result = 0;
 
-#if GP_VERSION_NUM >= 60000
 	/* If toasted value is on disk, we'll try to restore it. */
 	if (VARATT_IS_EXTERNAL_ONDISK(buffer))
 	{
@@ -1072,12 +1041,12 @@ ReadStringFromToast(const char *buffer,
 		printf("  TOAST value. Raw size: %8d, external size: %8d, "
 				"value id: %6d, toast relation id: %6d\n",
 				toast_ptr.va_rawsize,
-				toast_ptr.va_extsize,
+				VARATT_EXTERNAL_GET_EXTSIZE(toast_ptr),
 				toast_ptr.va_valueid,
 				toast_ptr.va_toastrelid);
 
 		/* Extract TOASTed value */
-		toast_ext_size = toast_ptr.va_extsize;
+		toast_ext_size = VARATT_EXTERNAL_GET_EXTSIZE(toast_ptr);
 		num_chunks = (toast_ext_size - 1) / TOAST_MAX_CHUNK_SIZE + 1;
 		printf("  Number of chunks: %d\n", num_chunks);
 
@@ -1108,7 +1077,7 @@ ReadStringFromToast(const char *buffer,
 					-1, /* no end block */
 					true, /* is toast relation */
 					toast_ptr.va_valueid,
-					toast_ptr.va_extsize,
+					VARATT_EXTERNAL_GET_EXTSIZE(toast_ptr),
 					toast_data);
 
 			if (result == 0)
@@ -1131,7 +1100,6 @@ ReadStringFromToast(const char *buffer,
 	}
 	/* If tag is indirect or expanded, it was stored in memory. */
 	else
-#endif /* GP_VERSION_NUM */
 	{
 		CopyAppend("(TOASTED IN MEMORY)");
 	}

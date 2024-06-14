@@ -13,6 +13,8 @@
 #ifndef GPDB_H
 #define GPDB_H
 
+#include "access/spgist_private.h"
+#include "access/ginblock.h"
 #include "cdb/cdbappendonlyam.h"
 
 typedef enum gpdbSwitches
@@ -75,18 +77,6 @@ extern unsigned int gpdbOptions;
 	(_x & GPDB_ORIENTATION_MASK)
 #define GPDB_SET_ORIENTATION(_x,_y)						\
 	GPDB_SET_OPTION(_x, _y, 'O', GPDB_ORIENTATION_MASK)
-
-#if GP_VERSION_NUM < 60000
-#define HeapTupleHeaderGetRawXmax(tup) HeapTupleHeaderGetXmax(tup)
-
-static inline uint64
-PageGetLSN_(Page page)
-{
-		XLogRecPtr	pageLSN = PageGetLSN(page);
-
-		return (((uint64) pageLSN.xlogid) << 32) | pageLSN.xrecoff;
-}
-#endif /* GP_VERSION_NUM */
 
 #if 0
 extern void file_set_dirs(char *file);
