@@ -1,42 +1,44 @@
-# Greenplum Database Filedump 
+# Filedump for Cloudberry Database
 
-Greenplum Database Filedump is a utility to format Greenplum heap/index/control
-files into a human-readable form. You can format/dump the files several ways, 
-as listed in the Invocation section, as well as dumping straight binary. 
+Filedump is a utility to format Cloudberry Database heap/index/control files
+into a human-readable form. You can format/dump the files several ways, as
+listed in the Invocation section, as well as dumping straight binary.
 
-This project is based on [PostgreSQL Filedump](https://git.postgresql.org/gitweb/?p=pg_filedump.git;a=summary), 
-with modification for support of Greenplum Database. Refer to 
-the [PostgreSQL Filedump wiki](https://wiki.postgresql.org/wiki/Pg_filedump) 
-for more information. 
+This repo is forked from
+[@greenplum-db/filedump](https://github.com/greenplum-db/filedump). The
+original project is based on [PostgreSQL
+Filedump](https://git.postgresql.org/gitweb/?p=pg_filedump.git;a=summary),
+with modification for support of Greenplum/Cloudberry Database. Refer to the
+[PostgreSQL Filedump wiki](https://wiki.postgresql.org/wiki/Pg_filedump) for
+more information.
 
-The original readme of PostgreSQL Filedump is included as [README.pg_filedump](README.pg_filedump).
+The original readme of PostgreSQL Filedump is included as
+[README.pg_filedump](README.pg_filedump).
 
-Build
------
+## Build
 
-This package only supports building in pgxs mode, which means you will need to 
-have a properly configured install tree (with include files) of the appropriate 
-GPDB major version.
+This package only supports building in pgxs mode, which means you will need to
+have a properly configured install tree (with include files) of the
+appropriate Cloudberry Database major version.
 
 You can typically build like this:
 
+```
     # make sure we can find the gpdb package
     source /path/to/greenplum_path.sh
 
     # build the pg_filedump
     make
+```
 
 The build result is a binary file named `pg_filedump`, you could copy it to
-your target machines and run it without the gpdb binaries.
+your target machines and run it without the Cloudberry Database binaries.
 
-Gpdb versions
--------------
+## Cloudberry Database versions
 
-This package only supports gpdb 7 and onward. For the use with past gpdb major 
-versions, checkout branch `historical` and follow `README.gpdb.md` there.
+This package supports Cloudberry Database 1.0.0+ (gpdb 7 and onward).
 
-Configuration
--------------
+## Configuration
 
 There are several configurable options:
 
@@ -48,4 +50,4 @@ There are several configurable options:
   accordingly.  It is also possible to force building without zlib by setting
   this variable to `n`.
 
-- `ENABLE_ZSTD`: A similar setting for the zstd compression method. 
+- `ENABLE_ZSTD`: A similar setting for the zstd compression method.

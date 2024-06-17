@@ -1,53 +1,78 @@
-# Contributing
+Cloudberry Database community welcomes contributions from anyone, new and
+experienced! We appreciate your interest in contributing. This guide will help
+you get started with the contribution.
 
-We warmly welcome and appreciate contributions from the community! By participating you agree to the [code of conduct](https://github.com/greenplum-db/filedump/blob/master/CODE-OF-CONDUCT.md). To contribute:
+## Code of Conduct
 
-- Sign our [Contributor License Agreement](https://cla.pivotal.io/sign/greenplum).
+Everyone who participates in Cloudberry Database, either as a user or a
+contributor, is obliged to follow our community [Code of
+Conduct](./CODE_OF_CONDUCT.md). Every violation against it will be reviewed
+and investigated and will result in a response that is deemed necessary and
+appropriate to the circumstances. The moderator team is obligated to maintain
+confidentiality regarding the reporter of an incident.
 
-- Fork the filedump repository on GitHub.
+Some behaviors that contribute to creating a positive environment include:
 
-- Clone the repository.
+* Use welcoming and inclusive language.
+* Respect differing viewpoints and experiences.
+* Accept constructive criticism gracefully.
+* Foster what's best for the community.
+* Show empathy for community members.
 
-- Follow the README to set up your environment and run the tests.
+## GitHub Contribution Workflow
 
-- Create a change
+1. Fork this repo to your own GitHub account.
+2. Clone down the repo to your local system.
 
-    - Create a topic branch.
+```
+git clone https://github.com/your-user-name/filedump.git
+```
 
-    - Make commits as logical units for ease of reviewing.
+3. Add the upstream repo. (You only have to do this once, not every time.)
 
-    - Try and follow similar coding styles as found throughout the code base.
+```
+git remote add upstream https://github.com/cloudberrydb/filedump.git
+```
 
-    - Rebase with master often to stay in sync with upstream.
+4. Create a new branch to hold your work.
 
-    - Add appropriate tests 
+```
+git checkout -b new-branch-name
+```
 
-    - Ensure a well written commit message as explained [here](https://chris.beams.io/posts/git-commit/) and [here](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
+5. Work on your new code.
 
-- Submit a pull request (PR).
+6. Commit your changes.
 
-    - Create a [pull request from your fork](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/.creating-a-pull-request-from-a-fork).
+```
+git add <the change files>
+git commit
+```
 
-    - We will create a test pipeline which runs additional acceptance tests based on your branch.
+7. Push your changes to your GitHub repo.
 
-    - Address PR feedback with fixup and/or squash commits.
-        ```
-        git add .
-        git commit --fixup <commit SHA> 
-            Or
-        git commit --squash <commit SHA>
-        ```    
+```
+git push origin new-branch-name
+```
 
-    - Once approved, before merging into master squash your fixups with:
-        ```
-        git rebase -i --autosquash origin/master
-        git push --force-with-lease $USER <my-feature-branch>
-        ```
+8. Open a PR (Pull Request).
 
+Go to the repo on GitHub. There will be a message about your recently pushed
+branch, asking if you would like to open a pull request. Follow the prompts,
+compare across repositories, and submit the PR.
 
-# Community
+9. Get your code reviewed.
+10. Congratulations! Once your PR is approved, and passes the CI/CD without
+errors, then the code will be merged. Your code will be shipped in the recent
+future releases.
 
-Connect with Greenplum on:
-- [Slack](https://greenplum.slack.com/)
-- [Dev Google Group mailing list](https://groups.google.com/a/greenplum.org/forum/#!forum/gpdb-dev/join)
+## Sync your branch with the upstream
 
+Before working on your next contribution, make sure your local repository is
+up to date:
+
+```
+git checkout main
+git fetch upstream
+git rebase upstream/main
+```
