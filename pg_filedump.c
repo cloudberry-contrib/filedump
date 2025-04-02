@@ -2153,7 +2153,7 @@ FormatControl(char *buffer)
 			   "          |-       TimeLineID: %u\n"
 			   "          |-         Next XID: %u/%u\n"
 			   "          |-         Next OID: %u\n"
-			   "          |- Next Relfilenode: " UINT64_FORMAT "\n"
+			   "          |- Next Relfilenode: %u\n"
 			   "          |-       Next Multi: %u\n"
 			   "          |-    Next MultiOff: %u\n"
 			   "          |-             Time: %s"
