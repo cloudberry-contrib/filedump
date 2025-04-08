@@ -118,12 +118,12 @@ select relfilenode from gp_dist_random('pg_class') where gp_segment_id = 0 and r
 ***** Block    0 Start ***( Position:    0) *************************
 <AO Header> -----
  HeaderKind: 1 
- Header Checksum Valid (checksum 0xf03ece11)
+ Header Checksum Valid (checksum 0x5a66c49d)
 (AoHeaderKind_SmallContent)
  executorBlockKind: 1 rowCount: 10
  headerLen: 24 uncompressedLen: 188 compressedLen: 84
  firstRowNumber: 1
-Content checksum valid (checksum: 0x8fb8c7e3)
+Content checksum valid (checksum: 0x97a588ac)
 
 ***** Block    0 End (Total Block length:  112) ******************
  Initial Bytes Read = 0
