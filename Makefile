@@ -1,6 +1,5 @@
 # only support building in pgxs mode
 USE_PGXS = 1
-MODULE_big = pg_filedump
 
 # the pgxs makefiles provide some version variables like below:
 #
@@ -22,7 +21,7 @@ endif # PG_CONFIG_MAJOR_VERSION
 ifeq ($(PG_CONFIG_MAJOR_VERSION),14.4)	
 	GPDB_RELEASE = 7
 	# pg_control has incompatible formats between gpdb major versions
-	REGRESS += gpdb-7_12.12-control
+	REGRESS += cbdb-2.0-control
 endif # PG_CONFIG_MAJOR_VERSION
 
 ifeq ($(GPDB_RELEASE),)
@@ -38,7 +37,7 @@ PG_LDFLAGS += -I $(shell pg_config --ldflags)
 
 PROGRAM = pg_filedump
 PROGNAME = pg_filedump
-OBJS	= decode.c pg_filedump.c stringinfo.c
+OBJS	= decode.o pg_filedump.o stringinfo.o
 
 DOCS = README.pg
 DOCS += README.md
@@ -55,7 +54,7 @@ ifeq ($(ENABLE_ZLIB),y)
 $(error cannot find zlib)
 	endif
 
-	PG_CPPFLAGS += -D ENABLE_ZLIB
+	PG_CFLAGS += -DENABLE_ZLIB
 	PG_CPPFLAGS += $(shell $(PKG_CONFIG) --cflags zlib)
 	PG_LIBS += $(shell $(PKG_CONFIG) --libs zlib)
 endif # ENABLE_ZLIB
@@ -70,7 +69,7 @@ ifeq ($(ENABLE_ZSTD),y)
 $(error cannot find libzstd)
 	endif
 
-	PG_CPPFLAGS += -D ENABLE_ZSTD
+	PG_CFLAGS += -DENABLE_ZSTD
 	PG_CPPFLAGS += $(shell $(PKG_CONFIG) --cflags libzstd)
 	PG_LIBS += $(shell $(PKG_CONFIG) --libs libzstd)
 endif # ENABLE_ZSTD
@@ -78,8 +77,7 @@ endif # ENABLE_ZSTD
 $(info ENABLE_ZLIB: $(ENABLE_ZLIB))
 $(info ENABLE_ZSTD: $(ENABLE_ZSTD))
 
-OBJS += gpdb.c
-OBJS += mock.c
+OBJS += gpdb.o
 
 REGRESS += gpdb-$(GPDB_RELEASE)-common
 
@@ -101,3 +99,4 @@ PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
 PGXS_DIR := $(dir $(PGXS))
+

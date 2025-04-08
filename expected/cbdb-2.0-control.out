@@ -1,28 +1,30 @@
 -- control file
-\! pg_filedump -c test/pg_control.gp7_12.12
+\! pg_filedump -c test/pg_control.cbdb-2.0
 
 *******************************************************************
 * PostgreSQL File/Block Formatted Dump Utility
 *
-* File: test/pg_control.gp7_12.12
+* File: test/pg_control.cbdb-2.0
 * Options used: -c
 *******************************************************************
 
 <pg_control Contents> *********************************************
 
                           CRC: Correct
-           pg_control Version: 12010700
-              Catalog Version: 302307241
-            System Identifier: 7285811498409084924
+           pg_control Version: 13000700
+              Catalog Version: 302502091
+            System Identifier: 7490468541381486304
                         State: IN PRODUCTION
-       Last Checkpoint Record: Log File (0) Offset (0x08000060)
-  Last Checkpoint Record Redo: Log File (0) Offset (0x08000028)
+                Last Mod Time: Tue Apr  8 07:48:43 2025
+       Last Checkpoint Record: Log File (0) Offset (0x0d0189f8)
+  Last Checkpoint Record Redo: Log File (0) Offset (0x0d0189c0)
           |-       TimeLineID: 1
-          |-         Next XID: 0/1076
-          |-         Next OID: 24576
-          |- Next Relfilenode: 12502
+          |-         Next XID: 0/1200
+          |-         Next OID: 27331
+          |- Next Relfilenode: 24818
           |-       Next Multi: 1
           |-    Next MultiOff: 0
+          |-             Time: Tue Apr  8 07:48:43 2025
        Minimum Recovery Point: Log File (0) Offset (0x00000000)
           Backup Start Record: Log File (0) Offset (0x00000000)
             Backup End Record: Log File (0) Offset (0x00000000)

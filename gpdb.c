@@ -59,6 +59,26 @@ static Oid			relid = InvalidOid;
 /* GPDB options */
 unsigned int gpdbOptions = 0;
 
+static inline void*
+pallocx(Size size)
+{
+	void *ptr;
+	ptr = malloc(size);
+	if (ptr == NULL)
+	{
+		fprintf(stderr, "Error: Out of memory\n");
+		exit(1);
+	}
+	return ptr;
+}
+
+static inline void
+pfreex(void *ptr)
+{
+	free(ptr);
+}
+#define palloc(n) pallocx(n)
+#define pfree(p) pfreex(p)
 
 static void
 Print_AppendOnlyStorageReadCurrent(AppendOnlyStorageReadCurrent *blkHdr)
